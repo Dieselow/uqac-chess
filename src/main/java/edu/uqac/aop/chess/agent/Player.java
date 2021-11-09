@@ -18,4 +18,13 @@ public abstract class Player {
 	public void setColor(int arg){
 		this.Colour = arg;
 	}
+
+	/**
+	 * Added getter in order to be able to check the pieces of the player moving
+	 *
+	 * @return Board
+	 */
+	public Board getPlayGround() {
+	 return playGround;
+	}
 }

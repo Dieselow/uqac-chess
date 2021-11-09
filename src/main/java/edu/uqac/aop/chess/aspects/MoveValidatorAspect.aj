@@ -1,0 +1,132 @@
+package edu.uqac.aop.chess.aspects;
+
+import edu.uqac.aop.chess.Board;
+import edu.uqac.aop.chess.Spot;
+import edu.uqac.aop.chess.agent.Move;
+import edu.uqac.aop.chess.agent.Player;
+import edu.uqac.aop.chess.piece.Piece;
+
+public aspect MoveValidatorAspect {
+
+    /**
+     * Check if Move is correct before being constructed
+     *
+     * @return boolean
+     */
+   /** boolean before(Move pieceMove, int xI, int yI, int xF, int yF):
+            call(Move edu.uqac.aop.chess.agent.Move+.Move) && target(pieceMove) && args(xI,yI,xF,yF){
+        if (xI < 0 || yI < 0) return false;
+        return xF <= Board.SIZE - 1 && yF <= Board.SIZE - 1;
+    }**/
+   boolean around(Move pieceMove):
+            execution(edu.uqac.aop.chess.agent.Move+.new(..)) && target(pieceMove) && args(xI,yI,xF,yF){
+        System.out.println(thisJoinPointStaticPart);
+        if (pieceMove.xI < 0 || pieceMove.yI < 0) return false;
+        return pieceMove.xF <= Board.SIZE - 1 && pieceMove.yF <= Board.SIZE - 1;
+    }
+
+    boolean around(Player player, Move pieceMove):
+            call(boolean edu.uqac.aop.chess.agent.Player+.isValideMove(Move))
+                    && target(player) && args(pieceMove){
+        Spot[][] grid = player.getPlayGround().getGrid();
+        System.out.println("debutg");
+
+        return checkPieceOwnership(player,pieceMove)
+                && checkLegalPieceMove(this.getPieceFromBoard(grid,pieceMove.xI,pieceMove.yI),pieceMove)
+                && checkOffensiveMove(grid,pieceMove) && checkPassedPiece(grid,pieceMove);
+    }
+
+    private boolean checkPieceOwnership(Player player, Move pieceMove) {
+        return player.getColor() == this.getMovePieceColor(player.getPlayGround().getGrid(), pieceMove);
+    }
+
+    private int getMovePieceColor(Spot[][] grid, Move mv) {
+        Piece targetPiece = this.getPieceFromBoard(grid,mv.xI, mv.yI);
+        if (targetPiece == null){
+            return -1;
+        }
+        return targetPiece.getPlayer();
+    }
+    private boolean checkLegalPieceMove(Piece piece,Move attemptedMove){
+        return piece.isMoveLegal(attemptedMove);
+    }
+
+    private Piece getPieceFromBoard(Spot[][] grid, int x , int y){
+
+        if (!grid[x][y].isOccupied()){
+            return null;
+        }
+        return grid[x][y].getPiece();
+    }
+
+    private boolean checkOffensiveMove(Spot[][] grid, Move pieceMove){
+        Piece movedPiece = this.getPieceFromBoard(grid, pieceMove.xI,pieceMove.yI);
+        Piece targetedPiece = this.getPieceFromBoard(grid,pieceMove.xF,pieceMove.yF);
+        return targetedPiece == null || targetedPiece.getPlayer() != movedPiece.getPlayer();
+    }
+
+    private boolean checkPassedPiece(Spot[][] grid, Move playerMove){
+        if (playerMove.xI == playerMove.xF){
+            return verticalMove(grid,playerMove);
+        }
+        if (playerMove.yI == playerMove.yF){
+            return horizontalMove(grid,playerMove);
+        }
+        return diagonalMove(grid, playerMove);
+    }
+    private boolean horizontalMove(Spot[][] grid, Move playerMove){
+        if (playerMove.xI < playerMove.xF){
+            for (int i= playerMove.xI; i< playerMove.xF -1;i++){
+                if (grid[i][playerMove.yI].isOccupied()){
+                    return false;
+                }
+            }
+            return true;
+        }
+        for (int i= playerMove.xI; i > playerMove.xF-1;i--){
+            if (grid[i][playerMove.yI].isOccupied()){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean verticalMove(Spot[][] grid, Move playerMove){
+        if (playerMove.yI < playerMove.yF){
+            for (int i= playerMove.yI; i< playerMove.yF -1;i++){
+                if (grid[playerMove.xI][i].isOccupied()){
+                    return false;
+                }
+            }
+            return true;
+        }
+        for (int i= playerMove.yI; i > playerMove.yF-1;i--){
+            if (grid[playerMove.xI][i].isOccupied()){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean diagonalMove(Spot[][] grid, Move playerMove){
+        while (playerMove.xI != playerMove.xF -1 || playerMove.yI != playerMove.yF-1){
+            if (playerMove.xI < playerMove.xF){
+                playerMove.xI++;
+            }
+            else {
+                playerMove.xI--;
+            }
+            if (playerMove.yI < playerMove.yF){
+                playerMove.yI++;
+            }
+            else {
+                playerMove.yI--;
+            }
+            if (grid[playerMove.xI][playerMove.yI].isOccupied()){
+                return false;
+            }
+        }
+        return true;
+    }
+
+}

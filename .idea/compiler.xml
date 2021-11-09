@@ -1,12 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AjcSettings">
+    <option name="ajcPath" value="$USER_HOME$/Downloads/aspectjtools-1.9.5.jar" />
+    <option name="cmdLineParams" value="-Xlint:ignore -showWeaveInfo" />
+    <option name="delegateToJavac" value="true" />
+  </component>
   <component name="CompilerConfiguration">
+    <option name="DEFAULT_COMPILER" value="ajc" />
     <annotationProcessing>
       <profile name="Maven default annotation processors profile" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="Chess" />
+        <module name="uqac-chess" />
       </profile>
     </annotationProcessing>
   </component>
