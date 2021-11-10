@@ -114,25 +114,27 @@ public aspect MoveValidatorAspect {
     }
 
     private boolean diagonalMove(Spot[][] grid, Move playerMove){
-        while (playerMove.xI != playerMove.xF -1 || playerMove.yI != playerMove.yF - 1){
-            int xMove = playerMove.xI -playerMove.xF;
-            int yMove = playerMove.yI - playerMove.yF;
+        int playerMoveX = playerMove.xI;;
+        int playerMoveY = playerMove.yI;
+        while (playerMoveX != playerMove.xF -1 || playerMoveY != playerMove.yF - 1){
+            int xMove = playerMoveX -playerMove.xF;
+            int yMove = playerMoveY - playerMove.yF;
             if (Math.abs(xMove) == 1 && Math.abs(yMove) == 1){
                 return true;
             }
             if (xMove < 0){
-                playerMove.xI++;
+                playerMoveX++;
             }
             else {
-                playerMove.xI--;
+                playerMoveX--;
             }
             if (yMove <0){
-                playerMove.yI++;
+                playerMoveY++;
             }
             else {
-                playerMove.yI--;
+                playerMoveY--;
             }
-            if (grid[playerMove.xI][playerMove.yI].isOccupied()){
+            if (grid[playerMoveX][playerMoveY].isOccupied()){
                 return false;
             }
         }
