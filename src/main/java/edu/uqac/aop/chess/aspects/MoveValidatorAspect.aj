@@ -4,6 +4,7 @@ import edu.uqac.aop.chess.Board;
 import edu.uqac.aop.chess.Spot;
 import edu.uqac.aop.chess.agent.Move;
 import edu.uqac.aop.chess.agent.Player;
+import edu.uqac.aop.chess.piece.Knight;
 import edu.uqac.aop.chess.piece.Piece;
 
 public aspect MoveValidatorAspect {
@@ -26,14 +27,16 @@ public aspect MoveValidatorAspect {
     }
 
     boolean around(Player player, Move pieceMove):
-            call(boolean edu.uqac.aop.chess.agent.Player+.makeMove(Move))
+            call(boolean edu.uqac.aop.chess.agent.Player.makeMove(Move))
                     && target(player) && args(pieceMove){
         Spot[][] grid = player.getPlayGround().getGrid();
-        System.out.println("debutg");
-
-        return checkPieceOwnership(player,pieceMove)
+        if (checkPieceOwnership(player,pieceMove)
                 && checkLegalPieceMove(this.getPieceFromBoard(grid,pieceMove.xI,pieceMove.yI),pieceMove)
-                && checkOffensiveMove(grid,pieceMove) && checkPassedPiece(grid,pieceMove);
+                && checkOffensiveMove(grid,pieceMove) && checkPassedPiece(grid,pieceMove)){
+            player.getPlayGround().movePiece(pieceMove);
+            return true;
+        }
+        return false;
     }
 
     private boolean checkPieceOwnership(Player player, Move pieceMove) {
@@ -66,6 +69,9 @@ public aspect MoveValidatorAspect {
     }
 
     private boolean checkPassedPiece(Spot[][] grid, Move playerMove){
+        if (this.getPieceFromBoard(grid,playerMove.xI, playerMove.yI).getClass() == Knight.class){
+            return true;
+        }
         if (playerMove.xI == playerMove.xF){
             return verticalMove(grid,playerMove);
         }
@@ -76,14 +82,14 @@ public aspect MoveValidatorAspect {
     }
     private boolean horizontalMove(Spot[][] grid, Move playerMove){
         if (playerMove.xI < playerMove.xF){
-            for (int i= playerMove.xI; i< playerMove.xF -1;i++){
+            for (int i= playerMove.xI+1; i< playerMove.xF -1;i++){
                 if (grid[i][playerMove.yI].isOccupied()){
                     return false;
                 }
             }
             return true;
         }
-        for (int i= playerMove.xI; i > playerMove.xF-1;i--){
+        for (int i= playerMove.xI- 1; i > playerMove.xF-1;i--){
             if (grid[i][playerMove.yI].isOccupied()){
                 return false;
             }
@@ -93,14 +99,14 @@ public aspect MoveValidatorAspect {
 
     private boolean verticalMove(Spot[][] grid, Move playerMove){
         if (playerMove.yI < playerMove.yF){
-            for (int i= playerMove.yI; i< playerMove.yF -1;i++){
+            for (int i= playerMove.yI + 1; i< playerMove.yF -1;i++){
                 if (grid[playerMove.xI][i].isOccupied()){
                     return false;
                 }
             }
             return true;
         }
-        for (int i= playerMove.yI; i > playerMove.yF-1;i--){
+        for (int i= playerMove.yI-1; i > playerMove.yF-1;i--){
             if (grid[playerMove.xI][i].isOccupied()){
                 return false;
             }
