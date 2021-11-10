@@ -26,7 +26,7 @@ public aspect MoveValidatorAspect {
     }
 
     boolean around(Player player, Move pieceMove):
-            call(boolean edu.uqac.aop.chess.agent.Player+.isValideMove(Move))
+            call(boolean edu.uqac.aop.chess.agent.Player+.makeMove(Move))
                     && target(player) && args(pieceMove){
         Spot[][] grid = player.getPlayGround().getGrid();
         System.out.println("debutg");
