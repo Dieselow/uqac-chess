@@ -33,7 +33,6 @@ public aspect MoveValidatorAspect {
         if (checkPieceOwnership(player,pieceMove)
                 && checkLegalPieceMove(this.getPieceFromBoard(grid,pieceMove.xI,pieceMove.yI),pieceMove)
                 && checkOffensiveMove(grid,pieceMove) && checkPassedPiece(grid,pieceMove)){
-            player.getPlayGround().movePiece(pieceMove);
             return true;
         }
         return false;
@@ -115,20 +114,18 @@ public aspect MoveValidatorAspect {
     }
 
     private boolean diagonalMove(Spot[][] grid, Move playerMove){
-        while (playerMove.xI != playerMove.xF -1 || playerMove.yI != playerMove.yF-1){
-            if (playerMove.xI < playerMove.xF){
-                playerMove.xI++;
+        int initialX = playerMove.xI < playerMove.xF ? playerMove.xI + 1 : playerMove.xF -1;
+        int finalX = playerMove.xF < playerMove.xI ? playerMove.xI +1 :playerMove.xF -1;
+        int initialY = playerMove.yI < playerMove.yF ? playerMove.yI + 1 : playerMove.yF -1;
+        int finalY = playerMove.yF < playerMove.yI ? playerMove.yI +1 :playerMove.yF -1;
+        while (initialX <  finalX || initialY < finalY){
+            if (initialX < finalX){
+                initialX++;
             }
-            else {
-                playerMove.xI--;
+            if (initialY < finalY){
+                initialY++;
             }
-            if (playerMove.yI < playerMove.yF){
-                playerMove.yI++;
-            }
-            else {
-                playerMove.yI--;
-            }
-            if (grid[playerMove.xI][playerMove.yI].isOccupied()){
+            if (grid[initialX][initialY].isOccupied()){
                 return false;
             }
         }

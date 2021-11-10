@@ -14,16 +14,6 @@ public class AiPlayer extends Player {
 
 	@Override
 	public boolean makeMove(Move mv) {
-		// TODO Auto-generated method stub
-		if (mv == null)
-			return false;
-		if (!playGround.getGrid()[mv.xI][mv.yI].isOccupied())
-			return false;
-		if (playGround.getGrid()[mv.xI][mv.yI].getPiece().getPlayer() == this.getColor())
-			return false;
-		if (!playGround.getGrid()[mv.xI][mv.yI].getPiece().isMoveLegal(mv))
-			return false;
-		playGround.movePiece(mv);
 		return true;
 	}
 
@@ -39,7 +29,7 @@ public class AiPlayer extends Player {
 			finY = Dies.nextInt(8);
 			mv = new Move(iniX, iniY, finX, finY);
 		} while (!makeMove(mv));
-
+		playGround.movePiece(mv);
 		System.out.println("Votre coup? <" + mv.toString()+ ">");
 		return mv;
 	}
