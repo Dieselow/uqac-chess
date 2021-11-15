@@ -8,38 +8,22 @@ import edu.uqac.aop.chess.piece.Knight;
 import edu.uqac.aop.chess.piece.Piece;
 
 public aspect MoveValidatorAspect {
-
-    /**
-     * Check if Move is correct before being constructed
-     *
-     * @return boolean
-     */
-   /** boolean before(Move pieceMove, int xI, int yI, int xF, int yF):
-            call(Move edu.uqac.aop.chess.agent.Move+.Move) && target(pieceMove) && args(xI,yI,xF,yF){
-        if (xI < 0 || yI < 0) return false;
-        return xF <= Board.SIZE - 1 && yF <= Board.SIZE - 1;
-    }**/
-   boolean around(Move pieceMove):
-            execution(edu.uqac.aop.chess.agent.Move+.new(..)) && target(pieceMove) && args(xI,yI,xF,yF){
-        System.out.println(thisJoinPointStaticPart);
-        if (pieceMove.xI < 0 || pieceMove.yI < 0) return false;
-        return pieceMove.xF <= Board.SIZE - 1 && pieceMove.yF <= Board.SIZE - 1;
-    }
-
     boolean around(Player player, Move pieceMove):
             call(boolean edu.uqac.aop.chess.agent.Player.makeMove(Move))
                     && target(player) && args(pieceMove){
         Spot[][] grid = player.getPlayGround().getGrid();
-        if (checkPieceOwnership(player,pieceMove)
-                && checkLegalPieceMove(this.getPieceFromBoard(grid,pieceMove.xI,pieceMove.yI),pieceMove)
-                && checkOffensiveMove(grid,pieceMove) && checkPassedPiece(grid,pieceMove)){
-            return true;
-        }
-        return false;
+        return checkMoveIntegrety(pieceMove) && checkPieceOwnership(player, pieceMove)
+                && checkLegalPieceMove(this.getPieceFromBoard(grid, pieceMove.xI, pieceMove.yI), pieceMove)
+                && checkOffensiveMove(grid, pieceMove) && checkPassedPiece(grid, pieceMove);
     }
 
     private boolean checkPieceOwnership(Player player, Move pieceMove) {
         return player.getColor() == this.getMovePieceColor(player.getPlayGround().getGrid(), pieceMove);
+    }
+
+    private boolean checkMoveIntegrety(Move pieceMove){
+        if (pieceMove.xI < 0 || pieceMove.yI < 0) return false;
+        return pieceMove.xF <= Board.SIZE - 1 && pieceMove.yF <= Board.SIZE - 1;
     }
 
     private int getMovePieceColor(Spot[][] grid, Move mv) {
